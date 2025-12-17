@@ -53,7 +53,7 @@ export class Renderer {
       rightArrow: symbolSet.right,
       separator: symbolSet.separator,
       branch: symbolSet.branch,
-      model: "\uf0e7", // Lightning bolt for model
+      model: symbolSet.model,
       progressFull: symbolSet.progress_full,
       progressEmpty: symbolSet.progress_empty,
       trendUp: "↑",
