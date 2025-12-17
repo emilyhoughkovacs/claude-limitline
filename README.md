@@ -174,6 +174,26 @@ npm run build    # Build once
 npm run dev      # Watch mode
 ```
 
+## Testing
+
+The project uses [Vitest](https://vitest.dev/) for testing with 96 tests covering config loading, themes, utilities, and rendering.
+
+```bash
+npm test              # Run tests once
+npm run test:watch    # Watch mode
+npm run test:coverage # Coverage report
+```
+
+### Test Structure
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `src/config/loader.test.ts` | 7 | Config loading, merging, fallbacks |
+| `src/themes/index.test.ts` | 37 | Theme retrieval, color validation |
+| `src/utils/claude-hook.test.ts` | 21 | Model name formatting |
+| `src/utils/environment.test.ts` | 10 | Directory/model detection |
+| `src/renderer.test.ts` | 21 | Segment rendering, ordering |
+
 ## Debug Mode
 
 Enable debug logging to troubleshoot issues:
