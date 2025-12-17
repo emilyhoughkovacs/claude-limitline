@@ -214,7 +214,7 @@ export async function fetchUsageFromAPI(
       return null;
     }
 
-    const data: ApiResponse = await response.json();
+    const data = (await response.json()) as ApiResponse;
     debug("Usage API response:", JSON.stringify(data));
 
     const parseUsageBlock = (block?: ApiUsageBlock): UsageData | null => {

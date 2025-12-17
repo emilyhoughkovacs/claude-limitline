@@ -4,10 +4,13 @@ import os from "node:os";
 import { debug } from "../utils/logger.js";
 import { DEFAULT_CONFIG, type LimitlineConfig } from "./types.js";
 
-function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
+function deepMerge(
+  target: LimitlineConfig,
+  source: Partial<LimitlineConfig>
+): LimitlineConfig {
   const result = { ...target };
 
-  for (const key of Object.keys(source) as (keyof T)[]) {
+  for (const key of Object.keys(source) as (keyof LimitlineConfig)[]) {
     const sourceValue = source[key];
     const targetValue = target[key];
 
@@ -20,12 +23,11 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
       targetValue !== null &&
       !Array.isArray(targetValue)
     ) {
-      result[key] = deepMerge(
-        targetValue as Record<string, unknown>,
-        sourceValue as Record<string, unknown>
-      ) as T[keyof T];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (result as any)[key] = { ...targetValue, ...sourceValue };
     } else if (sourceValue !== undefined) {
-      result[key] = sourceValue as T[keyof T];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (result as any)[key] = sourceValue;
     }
   }
 
