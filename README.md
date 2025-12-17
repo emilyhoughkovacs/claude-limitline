@@ -50,7 +50,9 @@ npm link
 
 ## Quick Start
 
-Add claude-limitline to your Claude Code settings file (`~/.claude/settings.json`):
+The easiest way to use claude-limitline is to add it directly to your Claude Code settings.
+
+**Add to your Claude Code settings file** (`~/.claude/settings.json`):
 
 ```json
 {
@@ -61,7 +63,23 @@ Add claude-limitline to your Claude Code settings file (`~/.claude/settings.json
 }
 ```
 
-That's it! The status line will now show in Claude Code.
+That's it! The status line will now show your usage limits in Claude Code.
+
+### Full Settings Example
+
+Here's a complete example with other common settings:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "default"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx claude-limitline"
+  }
+}
+```
 
 ### Global Install (faster startup)
 
