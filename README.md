@@ -2,54 +2,95 @@
 
 A statusline for Claude Code showing real-time usage limits and weekly tracking.
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)
+
 ## Features
 
 - **5-Hour Block Limit** - Shows current usage percentage with time remaining until reset
 - **7-Day Rolling Limit** - Tracks weekly usage with progress indicator
-- **Real-time Tracking** - Uses Anthropic's OAuth API for accurate usage data
+- **Real-time Tracking** - Uses Anthropic's OAuth usage API for accurate usage data
 - **Progress Bar Display** - Visual progress bars for quick status checks
 - **Cross-Platform** - Works on Windows, macOS, and Linux
-- **Zero Dependencies** - Lightweight and fast
+- **Zero Runtime Dependencies** - Lightweight and fast
+- **Multiple Themes** - Dark, light, nord, and gruvbox themes included
+
+## Prerequisites
+
+- **Node.js** 18.0.0 or higher
+- **Claude Code** CLI installed and authenticated (for OAuth token)
+- **Nerd Font** (optional, for powerline symbols)
 
 ## Installation
+
+### From npm (recommended)
 
 ```bash
 npm install -g claude-limitline
 ```
 
-Or install from source:
+### From Source
 
 ```bash
-git clone https://github.com/yourusername/claude-limitline.git
+git clone https://github.com/tylergraydev/claude-limitline.git
 cd claude-limitline
 npm install
 npm run build
 npm link
 ```
 
-## Usage
+### Using Docker
 
-### With Claude Code
+```bash
+# Build the image
+docker build -t claude-limitline .
 
-Add to your Claude Code settings (`~/.claude/settings.json`):
+# Run (mount your .claude directory for OAuth token access)
+docker run --rm -v ~/.claude:/root/.claude claude-limitline
+```
+
+## Quick Start
+
+1. **Install the package:**
+   ```bash
+   npm install -g claude-limitline
+   ```
+
+2. **Test it works:**
+   ```bash
+   claude-limitline
+   ```
+
+   You should see output like:
+   ```
+   ⏳ ████████░░ 45% (2h 30m left) | 📅 ██████░░░░ 62% (wk 43%)
+   ```
+
+3. **Configure Claude Code** to use it (see Integration section below)
+
+## Integration with Claude Code
+
+Add to your Claude Code settings file (`~/.claude/settings.json`):
 
 ```json
 {
-  "statusLine": {
-    "command": "claude-limitline"
+  "env": {
+    "CLAUDE_LIMITLINE_ENABLED": "true"
   }
 }
 ```
 
-### Standalone
+Or use it with a custom status line hook in your shell profile (`.bashrc`, `.zshrc`, etc.):
 
 ```bash
-claude-limitline
+# Add claude-limitline to your prompt
+export PS1='$(claude-limitline) \$ '
 ```
 
 ## Configuration
 
-Create a `.claude-limitline.json` file in your home directory or current working directory:
+Create a `.claude-limitline.json` file in your home directory (`~/.claude-limitline.json`) or current working directory:
 
 ```json
 {
@@ -77,44 +118,137 @@ Create a `.claude-limitline.json` file in your home directory or current working
 }
 ```
 
-### Options
+### Configuration Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `display.useNerdFonts` | Use Nerd Font symbols | `true` |
+| `display.useNerdFonts` | Use Nerd Font symbols (⏳📅) vs ASCII | `true` |
 | `block.enabled` | Show 5-hour block usage | `true` |
 | `block.displayStyle` | `"bar"` or `"text"` | `"bar"` |
-| `block.barWidth` | Width of progress bar | `10` |
-| `block.showTimeRemaining` | Show time until reset | `true` |
-| `weekly.enabled` | Show 7-day usage | `true` |
+| `block.barWidth` | Width of progress bar in characters | `10` |
+| `block.showTimeRemaining` | Show time until block resets | `true` |
+| `weekly.enabled` | Show 7-day rolling usage | `true` |
 | `weekly.displayStyle` | `"bar"` or `"text"` | `"bar"` |
-| `weekly.showWeekProgress` | Show week progress % | `true` |
+| `weekly.barWidth` | Width of progress bar in characters | `10` |
+| `weekly.showWeekProgress` | Show week progress percentage | `true` |
 | `budget.pollInterval` | Minutes between API calls | `15` |
-| `budget.warningThreshold` | % to show warning color | `80` |
-| `theme` | Color theme | `"dark"` |
+| `budget.warningThreshold` | Percentage to trigger warning color | `80` |
+| `theme` | Color theme name | `"dark"` |
 
-### Themes
+### Available Themes
 
-Available themes: `dark`, `light`, `nord`, `gruvbox`
+- `dark` - Default dark theme
+- `light` - Light background theme
+- `nord` - Nord color palette
+- `gruvbox` - Gruvbox color palette
 
 ## How It Works
 
-claude-limitline retrieves your Claude usage data from Anthropic's OAuth usage API. It reads your OAuth token from the system credential store:
+claude-limitline retrieves your Claude usage data from Anthropic's OAuth usage API. It reads your OAuth token from:
 
-- **Windows**: Credential Manager or `~/.claude/.credentials.json`
-- **macOS**: Keychain
-- **Linux**: secret-tool (GNOME Keyring) or `~/.claude/.credentials.json`
+| Platform | Location |
+|----------|----------|
+| **Windows** | Credential Manager or `~/.claude/.credentials.json` |
+| **macOS** | Keychain or `~/.claude/.credentials.json` |
+| **Linux** | secret-tool (GNOME Keyring) or `~/.claude/.credentials.json` |
 
-The usage data is cached to respect API rate limits (configurable via `pollInterval`).
+The usage data is cached locally to respect API rate limits. The cache duration is configurable via `budget.pollInterval` (default: 15 minutes).
+
+### API Response
+
+The tool queries Anthropic's usage endpoint which returns:
+
+- **5-hour block**: Usage percentage and reset time for the rolling 5-hour window
+- **7-day rolling**: Usage percentage and reset time for the rolling 7-day window
+
+## Development
+
+### Setup
+
+```bash
+git clone https://github.com/tylergraydev/claude-limitline.git
+cd claude-limitline
+npm install
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Development Mode (watch)
+
+```bash
+npm run dev
+```
+
+### Type Checking
+
+```bash
+npm run typecheck
+```
+
+### Run Locally
+
+```bash
+node dist/index.js
+```
 
 ## Debug Mode
 
-Enable debug logging:
+Enable debug logging to troubleshoot issues:
 
 ```bash
+# Linux/macOS
 CLAUDE_LIMITLINE_DEBUG=true claude-limitline
+
+# Windows (PowerShell)
+$env:CLAUDE_LIMITLINE_DEBUG="true"; claude-limitline
+
+# Windows (CMD)
+set CLAUDE_LIMITLINE_DEBUG=true && claude-limitline
 ```
+
+Debug output is written to stderr so it won't interfere with the status line output.
+
+## Troubleshooting
+
+### "No data" or empty output
+
+1. **Check OAuth token**: Make sure you're logged into Claude Code (`claude --login`)
+2. **Check credentials file**: Verify `~/.claude/.credentials.json` exists and contains `claudeAiOauth.accessToken`
+3. **Enable debug mode**: Run with `CLAUDE_LIMITLINE_DEBUG=true` to see detailed logs
+
+### Token not found
+
+The OAuth token is stored by Claude Code when you authenticate. Try:
+
+```bash
+# Re-authenticate with Claude Code
+claude --login
+```
+
+### API returns errors
+
+- Ensure your Claude subscription is active
+- Check if you've exceeded API rate limits (try increasing `pollInterval`)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+
+- Inspired by [claude-powerline](https://github.com/Owloops/claude-powerline)
+- Built for use with [Claude Code](https://claude.com/claude-code)

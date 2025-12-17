@@ -1,0 +1,13 @@
+src/
+tsconfig.json
+.gitignore
+.dockerignore
+Dockerfile
+.claude/
+.github/
+coverage/
+.nyc_output/
+*.log
+.DS_Store
+.idea/
+.vscode/

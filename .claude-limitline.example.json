@@ -1,0 +1,23 @@
+{
+  "display": {
+    "style": "minimal",
+    "useNerdFonts": true
+  },
+  "block": {
+    "enabled": true,
+    "displayStyle": "bar",
+    "barWidth": 10,
+    "showTimeRemaining": true
+  },
+  "weekly": {
+    "enabled": true,
+    "displayStyle": "bar",
+    "barWidth": 10,
+    "showWeekProgress": true
+  },
+  "budget": {
+    "pollInterval": 15,
+    "warningThreshold": 80
+  },
+  "theme": "dark"
+}

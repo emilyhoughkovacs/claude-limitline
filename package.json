@@ -15,6 +15,10 @@
     "lint": "eslint src/",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tylergraydev/claude-limitline.git"
+  },
   "keywords": [
     "claude",
     "claude-code",
@@ -22,10 +26,15 @@
     "powerline",
     "usage",
     "monitoring",
-    "cli"
+    "cli",
+    "anthropic"
   ],
   "author": "Tyler Gray",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tylergraydev/claude-limitline/issues"
+  },
+  "homepage": "https://github.com/tylergraydev/claude-limitline#readme",
   "devDependencies": {
     "@types/node": "^20.10.0",
     "tsup": "^8.0.0",
