@@ -22,16 +22,15 @@ describe("Renderer", () => {
   const defaultBlockInfo: BlockInfo = {
     percentUsed: 25,
     timeRemaining: 180,
-    currentUsage: 2500,
-    limit: 10000,
+    resetAt: new Date(),
+    isRealtime: true,
   };
 
   const defaultWeeklyInfo: WeeklyInfo = {
     percentUsed: 50,
     weekProgressPercent: 75,
-    currentUsage: 50000,
-    limit: 100000,
-    timeRemaining: 2880,
+    resetAt: new Date(),
+    isRealtime: true,
   };
 
   describe("render", () => {
@@ -230,8 +229,8 @@ describe("Renderer", () => {
       const blockInfo: BlockInfo = {
         percentUsed: null,
         timeRemaining: null,
-        currentUsage: 0,
-        limit: 0,
+        resetAt: null,
+        isRealtime: false,
       };
       const output = renderer.render(blockInfo, defaultWeeklyInfo, defaultEnvInfo);
 
