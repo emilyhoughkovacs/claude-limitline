@@ -52,40 +52,67 @@ docker run --rm -v ~/.claude:/root/.claude claude-limitline
 
 ## Quick Start
 
-1. **Install the package:**
-   ```bash
-   npm install -g claude-limitline
-   ```
+The easiest way to use claude-limitline is to add it directly to your Claude Code settings.
 
-2. **Test it works:**
-   ```bash
-   claude-limitline
-   ```
-
-   You should see output like:
-   ```
-   ⏳ ████████░░ 45% (2h 30m left) | 📅 ██████░░░░ 62% (wk 43%)
-   ```
-
-3. **Configure Claude Code** to use it (see Integration section below)
-
-## Integration with Claude Code
-
-Add to your Claude Code settings file (`~/.claude/settings.json`):
+**Add to your Claude Code settings file** (`~/.claude/settings.json`):
 
 ```json
 {
-  "env": {
-    "CLAUDE_LIMITLINE_ENABLED": "true"
+  "statusLine": {
+    "type": "command",
+    "command": "npx claude-limitline"
   }
 }
 ```
 
-Or use it with a custom status line hook in your shell profile (`.bashrc`, `.zshrc`, etc.):
+That's it! The status line will now show your usage limits in Claude Code.
+
+### Full Settings Example
+
+Here's a complete example with other common settings:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "default"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx claude-limitline"
+  }
+}
+```
+
+### Alternative: Global Install
+
+If you prefer a global installation (slightly faster startup):
 
 ```bash
-# Add claude-limitline to your prompt
-export PS1='$(claude-limitline) \$ '
+npm install -g claude-limitline
+```
+
+Then update your settings:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "claude-limitline"
+  }
+}
+```
+
+### Test It
+
+Run standalone to verify it's working:
+
+```bash
+npx claude-limitline
+```
+
+You should see output like:
+```
+⏳ ████████░░ 45% (2h 30m left) | 📅 ██████░░░░ 62% (wk 43%)
 ```
 
 ## Configuration
