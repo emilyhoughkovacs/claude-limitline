@@ -17,6 +17,7 @@ describe("Renderer", () => {
     gitBranch: "main",
     gitDirty: false,
     model: "Opus 4.5",
+    contextPercent: 42,
   };
 
   const defaultBlockInfo: BlockInfo = {
@@ -88,6 +89,7 @@ describe("Renderer", () => {
         model: { enabled: false },
         block: { enabled: false },
         weekly: { enabled: false },
+        context: { enabled: false },
       };
       const renderer = new Renderer(config);
       const output = renderer.render(null, null, defaultEnvInfo);
