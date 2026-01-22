@@ -244,7 +244,7 @@ The tool automatically retrieves your OAuth token from Claude Code's credential 
 | **Windows** | Credential Manager or `~/.claude/.credentials.json` |
 | **Linux** | secret-tool (GNOME Keyring) or `~/.claude/.credentials.json` |
 
-> **Note:** On macOS, the token is read directly from the system Keychain where Claude Code stores it. No additional configuration is needed—just make sure you're logged into Claude Code (`claude setup-token`).
+> **Note:** On macOS, the token is read directly from the system Keychain where Claude Code stores it. No additional configuration is needed—just make sure you're logged into Claude Code (run the `/login` command if prompted).
 
 ## Development
 
@@ -309,7 +309,7 @@ echo '{"model":{"id":"claude-opus-4-5-20251101"}}' | claude-limitline
 
 ### "No data" or empty output
 
-1. **Check OAuth token**: Make sure you're logged into Claude Code (`claude setup-token`)
+1. **Check OAuth authentication**: Make sure you're logged into Claude Code (run `/login` if prompted)
 2. **Check credentials file**: Verify `~/.claude/.credentials.json` exists (Windows/Linux)
 3. **Enable debug mode**: Run with `CLAUDE_LIMITLINE_DEBUG=true`
 
@@ -320,12 +320,13 @@ If you see errors like "OAuth token does not meet scope requirement user:profile
 **Cause**: An environment variable `CLAUDE_CODE_OAUTH_TOKEN` in your shell configuration (`.zshrc`, `.bash_profile`, etc.) is overriding Claude Code's native authentication. That token only has `user:inference` scope, but the Usage API requires `user:profile` scope.
 
 **Solution**:
-1. Remove `CLAUDE_CODE_OAUTH_TOKEN` from your shell configuration files
+1. Remove `CLAUDE_CODE_OAUTH_TOKEN` from your shell configuration files (`.zshrc`, `.bash_profile`, etc.)
 2. Delete any manually-stored tokens from Keychain: `security delete-generic-password -s "Claude Code-credentials"`
-3. Restart your terminal
-4. Let Claude Code use its native OAuth (which includes the correct scopes automatically)
+3. Open a new terminal and start Claude Code
+4. When prompted, authenticate using the `/login` command within Claude Code
+5. Claude Code's native OAuth flow will provide the correct scopes automatically
 
-**Important**: Do NOT set `CLAUDE_CODE_OAUTH_TOKEN` as an environment variable. Claude Code's native OAuth flow includes all necessary scopes.
+**Important**: Do NOT set `CLAUDE_CODE_OAUTH_TOKEN` as an environment variable. Claude Code's `/login` authentication includes all necessary scopes.
 
 ### Git branch not showing
 
