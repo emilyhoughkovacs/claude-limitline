@@ -118,11 +118,14 @@ The OAuth token in Keychain has scope `["user:inference"]` but the usage API req
 
 ## Next Steps
 
-### Step 1: Try Re-login (First Attempt)
+### Step 1: Try Re-authenticating (First Attempt)
 
 ```bash
-claude --logout
-claude --login
+# Delete the current credentials from Keychain
+security delete-generic-password -s "Claude Code-credentials"
+
+# Re-authenticate (this will prompt you to log in)
+claude setup-token
 ```
 
 This should refresh the OAuth token with the correct `user:profile` scope.
