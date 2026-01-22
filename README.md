@@ -6,22 +6,48 @@ A powerline-style statusline for Claude Code showing real-time usage limits, git
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)
 
+## ✨ This Fork
+
+This is a customized fork of [tylergraydev/claude-limitline](https://github.com/tylergraydev/claude-limitline) that extends the statusline beyond just API usage limits. Perfect for those who want a comprehensive, aesthetically cohesive statusline 🎀
+
+**What's different:**
+- 🕐 **Time display** - Current time in HH:MM:SS format
+- 📁 **Directory name** - Shows your current working directory
+- 🌿 **Git branch + status** - Branch name with dirty indicator in parentheses: `(main●)`
+- 📊 **Local context %** - Real-time context window usage from Claude Code
+- 🎨 **Cute colorwave palette** - Soft, muted colors (salmon, gold, sky blue, sage green, coral) that look cohesive together
+- 🧊 **Block character progress bars** - Uses proper Unicode blocks (`█░`) instead of ASCII
+- ⚡ **1-minute polling** - More frequent API updates (configurable)
+
+**Example output:**
+```
+17:03:49 claude-limitline (main●) (35%) ██████░░░░ 58% 2h 35m
+```
+
 ![Theme Preview](imgs/themes-preview.png)
 
 ## Features
 
-- **Powerline Style** - Beautiful segmented display with smooth transitions
+- **Time Display** - Current time in HH:MM:SS format (salmon color)
+- **Directory Name** - Shows current working directory (warm yellow)
+- **Git Branch** - Branch name with dirty indicator in parentheses: `(main●)` (teal)
+- **Context Window** - Real-time context usage percentage (color-coded by usage)
 - **5-Hour Block Limit** - Shows current usage percentage with time remaining until reset
-- **7-Day Rolling Limit** - Tracks weekly usage with progress indicator
-- **Repository Name** - Displays current project/directory name
-- **Git Branch** - Shows current branch with dirty indicator (●)
-- **Claude Model** - Displays the active model (Opus 4.5, Sonnet 4, etc.)
-- **Multiple Themes** - Dark, light, nord, gruvbox, tokyo-night, and rose-pine
+- **Progress Bar** - Visual bar with proper Unicode blocks (`█░`)
+- **7-Day Rolling Limit** - Tracks weekly usage with progress indicator (optional)
+- **Claude Model** - Displays the active model (Opus 4.5, Sonnet 4, etc.) (optional)
+- **Cohesive Color Palette** - Soft, muted colors that work beautifully together
 - **Real-time Tracking** - Uses Anthropic's OAuth usage API for accurate data
 - **Cross-Platform** - Works on Windows, macOS, and Linux
 
 ## Example Output
 
+This fork's default configuration:
+```
+17:03:49 claude-limitline (main●) (35%) ██████░░░░ 58% 2h 35m
+```
+
+Original format (if you prefer):
 ```
  claude-limitline  main ●   Opus 4.5   12% (3h20m)   45% (wk 85%)
 ```
@@ -100,8 +126,8 @@ Create a `claude-limitline.json` file in your Claude config directory (`~/.claud
     "warningThreshold": 80
   },
   "theme": "dark",
-  "segmentOrder": ["directory", "git", "model", "block", "weekly"],
-  "showTrend": true
+  "segmentOrder": ["time", "directory", "git", "context", "block"],
+  "showTrend": false
 }
 ```
 
@@ -109,12 +135,14 @@ Create a `claude-limitline.json` file in your Claude config directory (`~/.claud
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `display.useNerdFonts` | Use Nerd Font symbols for powerline | `true` |
-| `display.compactMode` | `"auto"`, `"always"`, or `"never"` | `"auto"` |
+| `display.useNerdFonts` | Use Nerd Font symbols for powerline | `true` (this fork: `false`) |
+| `display.compactMode` | `"auto"`, `"always"`, or `"never"` | `"auto"` (this fork: `"never"`) |
 | `display.compactWidth` | Terminal width threshold for compact mode | `80` |
+| `time.enabled` | Show current time HH:MM:SS | `false` (this fork: `true`) |
 | `directory.enabled` | Show repository/directory name | `true` |
 | `git.enabled` | Show git branch with dirty indicator | `true` |
-| `model.enabled` | Show Claude model name | `true` |
+| `context.enabled` | Show context window usage % | `false` (this fork: `true`) |
+| `model.enabled` | Show Claude model name | `true` (this fork: `false`) |
 | `block.enabled` | Show 5-hour block usage | `true` |
 | `block.displayStyle` | `"bar"` or `"text"` | `"text"` |
 | `block.barWidth` | Width of progress bar in characters | `10` |
@@ -124,11 +152,11 @@ Create a `claude-limitline.json` file in your Claude config directory (`~/.claud
 | `weekly.barWidth` | Width of progress bar in characters | `10` |
 | `weekly.showWeekProgress` | Show week progress percentage | `true` |
 | `weekly.viewMode` | `"simple"` or `"smart"` | `"simple"` |
-| `budget.pollInterval` | Minutes between API calls | `15` |
+| `budget.pollInterval` | Minutes between API calls | `15` (this fork: `1`) |
 | `budget.warningThreshold` | Percentage to trigger warning color | `80` |
 | `theme` | Color theme name | `"dark"` |
-| `segmentOrder` | Array to customize segment order | `["directory", "git", "model", "block", "weekly"]` |
-| `showTrend` | Show ↑↓ arrows for usage changes | `true` |
+| `segmentOrder` | Array to customize segment order | `["time", "directory", "git", "context", "block"]` |
+| `showTrend` | Show ↑↓ arrows for usage changes | `false` (original: `true`) |
 
 ### Weekly View Modes
 
@@ -156,13 +184,15 @@ The weekly segment supports two view modes for displaying usage limits:
 
 The statusline displays the following segments (all configurable):
 
-| Segment | Description | Color (dark theme) |
-|---------|-------------|-------------------|
-| **Directory** | Current repo/project name | Brown/Orange |
-| **Git** | Branch name + dirty indicator (●) | Dark Gray |
-| **Model** | Claude model (Opus 4.5, Sonnet 4, etc.) | Dark Gray |
-| **Block** | 5-hour usage % + time remaining | Cyan (warning: Orange, critical: Red) |
-| **Weekly** | 7-day usage % + week progress | Green |
+| Segment | Description | Color (this fork's theme) |
+|---------|-------------|---------------------------|
+| **Time** | Current time HH:MM:SS | Salmon/Pink (ANSI 210) |
+| **Directory** | Current repo/project name | Warm Yellow (ANSI 226) |
+| **Git** | Branch name in parentheses + dirty indicator: `(main●)` | Teal/Cyan (ANSI 50) |
+| **Context** | Context window usage percentage | Sky Blue → Sage Green → Gold → Coral (by usage %) |
+| **Block** | 5-hour usage % + progress bar + time remaining | Sky Blue → Sage Green → Gold → Coral (by usage %) |
+| **Model** | Claude model (Opus 4.5, Sonnet 4, etc.) - disabled by default | White |
+| **Weekly** | 7-day usage % + week progress - disabled by default | Sage Green |
 
 ## How It Works
 
@@ -284,5 +314,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
+- Forked from [claude-limitline](https://github.com/tylergraydev/claude-limitline) by [@tylergraydev](https://github.com/tylergraydev)
 - Inspired by [claude-powerline](https://github.com/Owloops/claude-powerline)
 - Built for use with [Claude Code](https://claude.com/claude-code)
+- Customized with 💖 for the girlie pops who like their terminals cute and functional
