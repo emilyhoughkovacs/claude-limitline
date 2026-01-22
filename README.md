@@ -31,14 +31,13 @@ This is a **heavily customized fork** of [tylergraydev/claude-limitline](https:/
 
 - **Time Display** - Current time in HH:MM:SS format (salmon color)
 - **Directory Name** - Shows current working directory (warm yellow)
-- **Comprehensive Git Status** - Branch with detailed indicators `(main*+$%=)` showing unstaged, staged, stashed, untracked, upstream, and special states (teal)
-- **Context Window** - Real-time context usage percentage (color-coded by usage)
+- **Comprehensive Git Status** - Branch with detailed indicators `(main*+$%=)` showing unstaged, staged, stashed, untracked, upstream status, plus special states like |MERGING (teal)
+- **Context Window** - Real-time context usage percentage from Claude Code hook data (color-coded by usage)
 - **5-Hour Block Limit** - Shows current usage percentage with time remaining until reset
 - **Progress Bar** - Visual bar with proper Unicode blocks (`█░`)
-- **7-Day Rolling Limit** - Tracks weekly usage with progress indicator (optional)
-- **Claude Model** - Displays the active model (Opus 4.5, Sonnet 4, etc.) (optional)
-- **Cohesive Color Palette** - Soft, muted colors that work beautifully together
-- **Real-time Tracking** - Uses Anthropic's OAuth usage API for accurate data
+- **Cohesive Color Palette** - Soft, muted colors (salmon, gold, sky blue, sage green, coral) that work beautifully together
+- **Real-time API Tracking** - Uses Anthropic's OAuth usage API for accurate 5-hour block data (polls every 1 minute by default)
+- **Optional Segments** - Weekly usage tracking and model display can be enabled
 - **Cross-Platform** - Works on Windows, macOS, and Linux
 
 ## Example Output
@@ -64,19 +63,20 @@ Original project format (for reference):
 
 - **Node.js** 18.0.0 or higher
 - **Claude Code** CLI installed and authenticated (for OAuth token)
-- **Nerd Font** (recommended, for powerline symbols)
 
 ## Installation
 
-### From npm (recommended)
+### From Source (This Fork)
+
+This customized fork is not published to npm. Install from source:
 
 ```bash
-npm install -g claude-limitline
+git clone https://github.com/emilyhoughkovacs/claude-limitline.git
+cd claude-limitline
+npm install
+npm run build
+npm link  # Makes it available globally as 'claude-limitline'
 ```
-
-### From Source
-
-See [Development](#development) section, then run `npm link` to make it available globally.
 
 ## Quick Start
 
@@ -86,26 +86,27 @@ Add to your Claude Code settings file (`~/.claude/settings.json`):
 {
   "statusLine": {
     "type": "command",
-    "command": "npx claude-limitline"
+    "command": "claude-limitline"
   }
 }
 ```
 
-That's it! The status line will now show your usage limits in Claude Code.
-
-> **Tip:** For faster startup, use `"command": "claude-limitline"` after installing globally.
+That's it! The status line will now show your customized statusline in Claude Code.
 
 ## Configuration
 
-Create a `claude-limitline.json` file in your Claude config directory (`~/.claude/claude-limitline.json`) or `.claude-limitline.json` in your current working directory:
+Create a `claude-limitline.json` file in your Claude config directory (`~/.claude/claude-limitline.json`) or `.claude-limitline.json` in your current working directory.
+
+**This fork's default configuration:**
 
 ```json
 {
   "display": {
-    "style": "powerline",
-    "useNerdFonts": true,
-    "compactMode": "auto",
-    "compactWidth": 80
+    "useNerdFonts": false,
+    "compactMode": "never"
+  },
+  "time": {
+    "enabled": true
   },
   "directory": {
     "enabled": true
@@ -114,24 +115,22 @@ Create a `claude-limitline.json` file in your Claude config directory (`~/.claud
     "enabled": true
   },
   "model": {
-    "enabled": true
+    "enabled": false
   },
   "block": {
     "enabled": true,
-    "displayStyle": "text",
+    "displayStyle": "bar",
     "barWidth": 10,
     "showTimeRemaining": true
   },
   "weekly": {
-    "enabled": true,
-    "displayStyle": "text",
-    "barWidth": 10,
-    "showWeekProgress": true,
-    "viewMode": "smart"
+    "enabled": false
+  },
+  "context": {
+    "enabled": true
   },
   "budget": {
-    "pollInterval": 15,
-    "warningThreshold": 80
+    "pollInterval": 1
   },
   "theme": "dark",
   "segmentOrder": ["time", "directory", "git", "context", "block"],
@@ -139,58 +138,58 @@ Create a `claude-limitline.json` file in your Claude config directory (`~/.claud
 }
 ```
 
+> **Note**: Weekly usage tracking is disabled by default but can be enabled by setting `"weekly": { "enabled": true }`. You can also add it to `segmentOrder` to control where it appears.
+
 ### Configuration Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `display.useNerdFonts` | Use Nerd Font symbols for powerline | `true` (this fork: `false`) |
-| `display.compactMode` | `"auto"`, `"always"`, or `"never"` | `"auto"` (this fork: `"never"`) |
-| `display.compactWidth` | Terminal width threshold for compact mode | `80` |
-| `time.enabled` | Show current time HH:MM:SS | `false` (this fork: `true`) |
+| Option | Description | This Fork's Default |
+|--------|-------------|---------------------|
+| `display.useNerdFonts` | Use Nerd Font symbols | `false` |
+| `display.compactMode` | `"auto"`, `"always"`, or `"never"` | `"never"` |
+| `time.enabled` | Show current time HH:MM:SS | `true` |
 | `directory.enabled` | Show repository/directory name | `true` |
-| `git.enabled` | Show git branch with dirty indicator | `true` |
-| `context.enabled` | Show context window usage % | `false` (this fork: `true`) |
-| `model.enabled` | Show Claude model name | `true` (this fork: `false`) |
+| `git.enabled` | Show git branch with comprehensive status | `true` |
+| `context.enabled` | Show context window usage % | `true` |
+| `model.enabled` | Show Claude model name | `false` |
 | `block.enabled` | Show 5-hour block usage | `true` |
-| `block.displayStyle` | `"bar"` or `"text"` | `"text"` |
+| `block.displayStyle` | `"bar"` or `"text"` | `"bar"` |
 | `block.barWidth` | Width of progress bar in characters | `10` |
 | `block.showTimeRemaining` | Show time until block resets | `true` |
-| `weekly.enabled` | Show 7-day rolling usage | `true` |
-| `weekly.displayStyle` | `"bar"` or `"text"` | `"text"` |
-| `weekly.barWidth` | Width of progress bar in characters | `10` |
-| `weekly.showWeekProgress` | Show week progress percentage | `true` |
-| `weekly.viewMode` | `"simple"` or `"smart"` | `"simple"` |
-| `budget.pollInterval` | Minutes between API calls | `15` (this fork: `1`) |
+| `weekly.enabled` | Show 7-day rolling usage (optional) | `false` |
+| `weekly.displayStyle` | `"bar"` or `"text"` (if enabled) | `"text"` |
+| `weekly.barWidth` | Width of progress bar (if enabled) | `10` |
+| `weekly.showWeekProgress` | Show week progress % (if enabled) | `true` |
+| `weekly.viewMode` | `"simple"` or `"smart"` (if enabled) | `"simple"` |
+| `budget.pollInterval` | Minutes between API calls | `1` |
 | `budget.warningThreshold` | Percentage to trigger warning color | `80` |
-| `theme` | Color theme name | `"dark"` |
+| `theme` | Color theme (only "dark" is customized) | `"dark"` |
 | `segmentOrder` | Array to customize segment order | `["time", "directory", "git", "context", "block"]` |
-| `showTrend` | Show ↑↓ arrows for usage changes | `false` (original: `true`) |
+| `showTrend` | Show ↑↓ arrows for usage changes | `false` |
 
-### Weekly View Modes
+### Weekly Usage Tracking (Optional)
 
-The weekly segment supports two view modes for displaying usage limits:
+**Weekly tracking is disabled by default** in this fork, but you can enable it if you want to track your 7-day rolling usage.
 
-![Mode Preview](imgs/mode-preview.png)
+To enable weekly tracking:
+```json
+{
+  "weekly": {
+    "enabled": true,
+    "displayStyle": "text",
+    "viewMode": "simple"
+  },
+  "segmentOrder": ["time", "directory", "git", "context", "block", "weekly"]
+}
+```
 
-| Mode | Description | Example |
-|------|-------------|---------|
-| `simple` | Shows overall weekly usage only (default) | `○ 47% (wk 85%)` |
-| `smart` | Model-aware: shows Sonnet + Overall when using Sonnet | `◇7% \| ○47% (wk 85%)` |
+The weekly segment supports two view modes:
 
-**Note:** Model-specific limits (Opus/Sonnet) are only available on certain subscription tiers. Smart mode shows only overall usage when using Opus/Haiku, and shows both Sonnet and overall when using Sonnet.
+| Mode | Description |
+|------|-------------|
+| `simple` | Shows overall weekly usage only |
+| `smart` | Model-aware: shows Sonnet + Overall when using Sonnet |
 
-### Available Themes
-
-**This fork only uses the customized `dark` theme** with the soft, cohesive colorwave palette (salmon, gold, sky blue, sage green, coral).
-
-The following themes are inherited from the original project but are **not customized** for this fork's features:
-- `light` - Light background theme with vibrant colors
-- `nord` - Nord color palette
-- `gruvbox` - Gruvbox color palette
-- `tokyo-night` - Tokyo Night color palette
-- `rose-pine` - Rosé Pine color palette
-
-**Note**: If you use themes other than `dark`, you'll get the original project's styling without the custom colorwave palette. The `dark` theme is recommended for this fork.
+**Note:** Model-specific limits (Opus/Sonnet) are only available on certain subscription tiers.
 
 ## Segments
 
@@ -203,8 +202,8 @@ The statusline displays the following segments (all configurable):
 | **Git** | Branch name in parentheses with comprehensive status indicators: `(main*+$%=)` | Teal/Cyan (ANSI 50) |
 | **Context** | Context window usage percentage | Sky Blue → Sage Green → Gold → Coral (by usage %) |
 | **Block** | 5-hour usage % + progress bar + time remaining | Sky Blue → Sage Green → Gold → Coral (by usage %) |
-| **Model** | Claude model (Opus 4.5, Sonnet 4, etc.) - disabled by default | White |
-| **Weekly** | 7-day usage % + week progress - disabled by default | Sage Green |
+| **Model** | Claude model (Opus 4.5, Sonnet 4, etc.) - optional | White |
+| **Weekly** | 7-day usage % + week progress - optional | Sage Green |
 
 ### Git Status Indicators
 
@@ -245,12 +244,12 @@ The tool automatically retrieves your OAuth token from Claude Code's credential 
 | **Windows** | Credential Manager or `~/.claude/.credentials.json` |
 | **Linux** | secret-tool (GNOME Keyring) or `~/.claude/.credentials.json` |
 
-> **Note:** On macOS, the token is read directly from the system Keychain where Claude Code stores it. No additional configuration is needed—just make sure you're logged into Claude Code (`claude --login`).
+> **Note:** On macOS, the token is read directly from the system Keychain where Claude Code stores it. No additional configuration is needed—just make sure you're logged into Claude Code (`claude setup-token`).
 
 ## Development
 
 ```bash
-git clone https://github.com/tylergraydev/claude-limitline.git
+git clone https://github.com/emilyhoughkovacs/claude-limitline.git
 cd claude-limitline
 npm install
 npm run build    # Build once
