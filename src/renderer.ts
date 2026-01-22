@@ -231,7 +231,6 @@ export class Renderer {
       return null;
     }
 
-    const dirtyIndicator = ctx.envInfo.gitDirty ? "●" : "";
     const icon = this.usePowerline ? this.symbols.branch : "";
     const prefix = icon ? `${icon} ` : "";
 
@@ -240,8 +239,20 @@ export class Renderer {
       branch = branch.slice(0, 8) + "…";
     }
 
+    // Build status indicators from comprehensive git status
+    let flags = "";
+    if (ctx.envInfo.gitStatus) {
+      const s = ctx.envInfo.gitStatus;
+      if (s.hasUnstaged) flags += "*";
+      if (s.hasStaged) flags += "+";
+      if (s.hasStashed) flags += "$";
+      if (s.hasUntracked) flags += "%";
+      if (s.upstream) flags += s.upstream;
+      if (s.specialState) flags += s.specialState;
+    }
+
     return {
-      text: `${prefix}(${branch}${dirtyIndicator})`,
+      text: `${prefix}(${branch}${flags})`,
       colors: this.theme.git,
     };
   }

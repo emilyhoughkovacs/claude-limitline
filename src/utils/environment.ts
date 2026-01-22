@@ -38,20 +38,130 @@ export function getGitBranch(): string | null {
   }
 }
 
+export interface GitStatus {
+  hasUnstaged: boolean;      // * - Unstaged changes
+  hasStaged: boolean;         // + - Staged changes
+  hasUntracked: boolean;      // % - Untracked files
+  hasStashed: boolean;        // $ - Stashed changes
+  upstream: string | null;    // =, >, <, <> - Upstream status
+  specialState: string | null; // |MERGING, |REBASE, etc.
+}
+
 /**
- * Check if the git repo has uncommitted changes
+ * Get comprehensive git status with all indicators
  */
-export function hasGitChanges(): boolean {
+export function getGitStatus(): GitStatus {
+  const status: GitStatus = {
+    hasUnstaged: false,
+    hasStaged: false,
+    hasUntracked: false,
+    hasStashed: false,
+    upstream: null,
+    specialState: null,
+  };
+
   try {
-    const status = execSync("git status --porcelain", {
+    // Check for unstaged changes
+    try {
+      execSync("git diff --no-ext-diff --quiet --exit-code", {
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+    } catch {
+      status.hasUnstaged = true;
+    }
+
+    // Check for staged changes
+    try {
+      execSync("git diff-index --cached --quiet HEAD --", {
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+    } catch {
+      status.hasStaged = true;
+    }
+
+    // Check for untracked files
+    const untrackedOutput = execSync("git ls-files --others --exclude-standard", {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"],
     }).trim();
-    return status.length > 0;
+    status.hasUntracked = untrackedOutput.length > 0;
+
+    // Check for stashed changes
+    try {
+      execSync("git rev-parse --verify --quiet refs/stash", {
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+      status.hasStashed = true;
+    } catch {
+      status.hasStashed = false;
+    }
+
+    // Check upstream status
+    try {
+      const upstream = execSync("git rev-parse --abbrev-ref @{upstream}", {
+        encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+
+      if (upstream) {
+        const counts = execSync(`git rev-list --left-right --count HEAD...${upstream}`, {
+          encoding: "utf-8",
+          stdio: ["pipe", "pipe", "pipe"],
+        }).trim().split(/\s+/);
+
+        const ahead = parseInt(counts[0] || "0", 10);
+        const behind = parseInt(counts[1] || "0", 10);
+
+        if (ahead === 0 && behind === 0) {
+          status.upstream = "=";
+        } else if (ahead > 0 && behind === 0) {
+          status.upstream = ">";
+        } else if (ahead === 0 && behind > 0) {
+          status.upstream = "<";
+        } else if (ahead > 0 && behind > 0) {
+          status.upstream = "<>";
+        }
+      }
+    } catch {
+      // No upstream or error - leave as null
+    }
+
+    // Check for special states
+    try {
+      const gitDir = execSync("git rev-parse --git-dir", {
+        encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+
+      if (execSync(`test -f ${gitDir}/MERGE_HEAD && echo 1 || echo 0`, { encoding: "utf-8" }).trim() === "1") {
+        status.specialState = "|MERGING";
+      } else if (execSync(`test -f ${gitDir}/CHERRY_PICK_HEAD && echo 1 || echo 0`, { encoding: "utf-8" }).trim() === "1") {
+        status.specialState = "|CHERRY-PICKING";
+      } else if (execSync(`test -f ${gitDir}/REVERT_HEAD && echo 1 || echo 0`, { encoding: "utf-8" }).trim() === "1") {
+        status.specialState = "|REVERTING";
+      } else if (execSync(`test -f ${gitDir}/BISECT_LOG && echo 1 || echo 0`, { encoding: "utf-8" }).trim() === "1") {
+        status.specialState = "|BISECTING";
+      } else if (execSync(`test -d ${gitDir}/rebase-merge && echo 1 || echo 0`, { encoding: "utf-8" }).trim() === "1") {
+        status.specialState = "|REBASE";
+      } else if (execSync(`test -d ${gitDir}/rebase-apply && echo 1 || echo 0`, { encoding: "utf-8" }).trim() === "1") {
+        status.specialState = "|REBASE";
+      }
+    } catch {
+      // No special state
+    }
   } catch (error) {
-    debug("Error checking git status:", error);
-    return false;
+    debug("Error getting git status:", error);
   }
+
+  return status;
+}
+
+/**
+ * Check if the git repo has uncommitted changes (legacy - kept for compatibility)
+ */
+export function hasGitChanges(): boolean {
+  const status = getGitStatus();
+  return status.hasUnstaged || status.hasStaged || status.hasUntracked;
 }
 
 /**
@@ -78,7 +188,8 @@ export function getClaudeModel(hookData?: ClaudeHookData | null): string | null 
 export interface EnvironmentInfo {
   directory: string | null;
   gitBranch: string | null;
-  gitDirty: boolean;
+  gitDirty: boolean; // Legacy - kept for compatibility
+  gitStatus: GitStatus | null;
   model: string | null;
   contextPercent: number;
 }
@@ -105,10 +216,14 @@ export function getContextPercent(hookData?: ClaudeHookData | null): number {
  * Get all environment info at once
  */
 export function getEnvironmentInfo(hookData?: ClaudeHookData | null): EnvironmentInfo {
+  const gitBranch = getGitBranch();
+  const gitStatus = gitBranch ? getGitStatus() : null;
+
   return {
     directory: getDirectoryName(hookData),
-    gitBranch: getGitBranch(),
-    gitDirty: hasGitChanges(),
+    gitBranch,
+    gitDirty: hasGitChanges(), // Legacy
+    gitStatus,
     model: getClaudeModel(hookData),
     contextPercent: getContextPercent(hookData),
   };

@@ -1,6 +1,6 @@
 # claude-limitline
 
-A powerline-style statusline for Claude Code showing real-time usage limits, git info, and model details.
+A customized statusline for Claude Code showing real-time usage data, time, directory, comprehensive git status, and context usage.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
@@ -8,12 +8,12 @@ A powerline-style statusline for Claude Code showing real-time usage limits, git
 
 ## ✨ This Fork
 
-This is a customized fork of [tylergraydev/claude-limitline](https://github.com/tylergraydev/claude-limitline) that extends the statusline beyond just API usage limits. Perfect for those who want a comprehensive, aesthetically cohesive statusline 🎀
+This is a **heavily customized fork** of [tylergraydev/claude-limitline](https://github.com/tylergraydev/claude-limitline) that's evolved into a completely different statusline. We kept the OAuth API call for real-time 5-hour usage limits and rebuilt everything else from scratch for maximum aesthetic and functional vibes 🎀
 
 **What's different:**
 - 🕐 **Time display** - Current time in HH:MM:SS format
 - 📁 **Directory name** - Shows your current working directory
-- 🌿 **Git branch + status** - Branch name with dirty indicator in parentheses: `(main●)`
+- 🌿 **Comprehensive git status** - Branch with detailed indicators: `(main*+$%=)` showing unstaged (*), staged (+), stashed ($), untracked (%), and upstream (=/>/</<>) status, plus special states like |MERGING
 - 📊 **Local context %** - Real-time context window usage from Claude Code
 - 🎨 **Cute colorwave palette** - Soft, muted colors (salmon, gold, sky blue, sage green, coral) that look cohesive together
 - 🧊 **Block character progress bars** - Uses proper Unicode blocks (`█░`) instead of ASCII
@@ -21,16 +21,16 @@ This is a customized fork of [tylergraydev/claude-limitline](https://github.com/
 
 **Example output:**
 ```
-17:03:49 claude-limitline (main●) (35%) ██████░░░░ 58% 2h 35m
+17:03:49 claude-limitline (main*=) (35%) ██████░░░░ 58% 2h 35m
 ```
 
-![Theme Preview](imgs/themes-preview.png)
+> **Note**: The theme preview image below is from the original project and does not reflect this fork's customizations (time, git status indicators, context %, custom color palette, etc.)
 
 ## Features
 
 - **Time Display** - Current time in HH:MM:SS format (salmon color)
 - **Directory Name** - Shows current working directory (warm yellow)
-- **Git Branch** - Branch name with dirty indicator in parentheses: `(main●)` (teal)
+- **Comprehensive Git Status** - Branch with detailed indicators `(main*+$%=)` showing unstaged, staged, stashed, untracked, upstream, and special states (teal)
 - **Context Window** - Real-time context usage percentage (color-coded by usage)
 - **5-Hour Block Limit** - Shows current usage percentage with time remaining until reset
 - **Progress Bar** - Visual bar with proper Unicode blocks (`█░`)
@@ -42,12 +42,19 @@ This is a customized fork of [tylergraydev/claude-limitline](https://github.com/
 
 ## Example Output
 
-This fork's default configuration:
+This fork's default configuration with comprehensive git status:
 ```
-17:03:49 claude-limitline (main●) (35%) ██████░░░░ 58% 2h 35m
+17:03:49 claude-limitline (main*+$=) (35%) ██████░░░░ 58% 2h 35m
 ```
 
-Original format (if you prefer):
+Breaking it down:
+- `17:03:49` - Current time
+- `claude-limitline` - Directory name
+- `(main*+$=)` - Git: branch `main` with unstaged (*), staged (+), stashed ($), equal to upstream (=)
+- `(35%)` - Context window usage
+- `██████░░░░ 58% 2h 35m` - 5-hour block: 58% used, 2h 35m remaining
+
+Original project format (for reference):
 ```
  claude-limitline  main ●   Opus 4.5   12% (3h20m)   45% (wk 85%)
 ```
@@ -173,12 +180,16 @@ The weekly segment supports two view modes for displaying usage limits:
 
 ### Available Themes
 
-- `dark` - Default dark theme with warm browns and cool cyans
+**This fork only uses the customized `dark` theme** with the soft, cohesive colorwave palette (salmon, gold, sky blue, sage green, coral).
+
+The following themes are inherited from the original project but are **not customized** for this fork's features:
 - `light` - Light background theme with vibrant colors
 - `nord` - Nord color palette
 - `gruvbox` - Gruvbox color palette
 - `tokyo-night` - Tokyo Night color palette
 - `rose-pine` - Rosé Pine color palette
+
+**Note**: If you use themes other than `dark`, you'll get the original project's styling without the custom colorwave palette. The `dark` theme is recommended for this fork.
 
 ## Segments
 
@@ -188,11 +199,33 @@ The statusline displays the following segments (all configurable):
 |---------|-------------|---------------------------|
 | **Time** | Current time HH:MM:SS | Salmon/Pink (ANSI 210) |
 | **Directory** | Current repo/project name | Warm Yellow (ANSI 226) |
-| **Git** | Branch name in parentheses + dirty indicator: `(main●)` | Teal/Cyan (ANSI 50) |
+| **Git** | Branch name in parentheses with comprehensive status indicators: `(main*+$%=)` | Teal/Cyan (ANSI 50) |
 | **Context** | Context window usage percentage | Sky Blue → Sage Green → Gold → Coral (by usage %) |
 | **Block** | 5-hour usage % + progress bar + time remaining | Sky Blue → Sage Green → Gold → Coral (by usage %) |
 | **Model** | Claude model (Opus 4.5, Sonnet 4, etc.) - disabled by default | White |
 | **Weekly** | 7-day usage % + week progress - disabled by default | Sage Green |
+
+### Git Status Indicators
+
+The git segment shows comprehensive status information inspired by git-prompt.sh:
+
+| Indicator | Meaning |
+|-----------|---------|
+| **`*`** | Unstaged changes (modified files not staged) |
+| **`+`** | Staged changes (ready to commit) |
+| **`$`** | Stashed changes exist |
+| **`%`** | Untracked files present |
+| **`=`** | Equal to upstream |
+| **`>`** | Ahead of upstream |
+| **`<`** | Behind upstream |
+| **`<>`** | Diverged from upstream |
+| **`\|MERGING`** | Merge in progress |
+| **`\|REBASE`** | Rebase in progress |
+| **`\|CHERRY-PICKING`** | Cherry-pick in progress |
+| **`\|REVERTING`** | Revert in progress |
+| **`\|BISECTING`** | Bisect in progress |
+
+**Example**: `(main*+$=)` means you're on `main` with unstaged changes (*), staged changes (+), stashed changes ($), and equal to upstream (=)
 
 ## How It Works
 
