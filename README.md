@@ -24,7 +24,8 @@ This is a **heavily customized fork** of [tylergraydev/claude-limitline](https:/
 17:03:49 claude-limitline (main*=) (35%) ██████░░░░ 58% 2h 35m
 ```
 
-> **Note**: The theme preview image below is from the original project and does not reflect this fork's customizations (time, git status indicators, context %, custom color palette, etc.)
+![Custom Statusline](imgs/custom-statusline.png)
+*This fork's customized statusline showing time, directory, git status with indicators, context %, and 5-hour block usage*
 
 ## Features
 
