@@ -118,6 +118,28 @@ export class Renderer {
     return baseColors;
   }
 
+  private getBlockColors(percent: number): SegmentColor {
+    if (percent >= 90) {
+      return this.theme.critical;
+    } else if (percent >= 70) {
+      return this.theme.blockHigh;
+    } else if (percent >= 50) {
+      return this.theme.blockMedium;
+    }
+    return this.theme.blockLow;
+  }
+
+  private getContextColors(percent: number): SegmentColor {
+    if (percent >= 90) {
+      return this.theme.critical;
+    } else if (percent >= 70) {
+      return this.theme.contextHigh;
+    } else if (percent >= 50) {
+      return this.theme.contextMedium;
+    }
+    return this.theme.contextLow;
+  }
+
   private renderPowerline(segments: Segment[]): string {
     if (segments.length === 0) return "";
 
@@ -169,7 +191,24 @@ export class Renderer {
   private renderFallback(segments: Segment[]): string {
     return segments
       .map(seg => ansi.bg(seg.colors.bg) + ansi.fg(seg.colors.fg) + seg.text + RESET_CODE)
-      .join(` ${this.symbols.separator} `);
+      .join(' ');
+  }
+
+  private renderTime(ctx: RenderContext): Segment | null {
+    if (!this.config.time?.enabled) {
+      return null;
+    }
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}:${seconds}`;
+
+    return {
+      text: `${timeStr}`,
+      colors: this.theme.time,
+    };
   }
 
   private renderDirectory(ctx: RenderContext): Segment | null {
@@ -182,7 +221,7 @@ export class Renderer {
       : ctx.envInfo.directory;
 
     return {
-      text: ` ${name} `,
+      text: `${name}`,
       colors: this.theme.directory,
     };
   }
@@ -202,7 +241,7 @@ export class Renderer {
     }
 
     return {
-      text: ` ${prefix}${branch}${dirtyIndicator} `,
+      text: `${prefix}${branch}${dirtyIndicator}`,
       colors: this.theme.git,
     };
   }
@@ -216,7 +255,7 @@ export class Renderer {
     const prefix = icon ? `${icon} ` : "";
 
     return {
-      text: ` ${prefix}${ctx.envInfo.model} `,
+      text: `${prefix}${ctx.envInfo.model}`,
       colors: this.theme.model,
     };
   }
@@ -226,17 +265,12 @@ export class Renderer {
       return null;
     }
 
-    const icon = this.usePowerline ? this.symbols.block : "BLK";
-
     if (ctx.blockInfo.percentUsed === null) {
-      return {
-        text: ` ${icon} -- `,
-        colors: this.theme.block,
-      };
+      return null;
     }
 
     const percent = ctx.blockInfo.percentUsed;
-    const colors = this.getColorsForPercent(percent, this.theme.block);
+    const colors = this.getBlockColors(percent);
     const displayStyle = this.config.block.displayStyle || "text";
     const barWidth = this.config.block.barWidth || 10;
     const showTime = this.config.block.showTimeRemaining ?? true;
@@ -256,11 +290,11 @@ export class Renderer {
     // Add time remaining if available and enabled (skip in compact mode)
     if (showTime && ctx.blockInfo.timeRemaining !== null && !ctx.compact) {
       const timeStr = this.formatTimeRemaining(ctx.blockInfo.timeRemaining, ctx.compact);
-      text += ` (${timeStr})`;
+      text += ` ${timeStr}`;
     }
 
     return {
-      text: ` ${icon} ${text} `,
+      text: `${text}`,
       colors,
     };
   }
@@ -270,10 +304,7 @@ export class Renderer {
     const icon = this.usePowerline ? this.symbols.weekly : "WK";
 
     if (info.percentUsed === null) {
-      return {
-        text: ` ${icon} -- `,
-        colors: this.theme.weekly,
-      };
+      return null;
     }
 
     const percent = info.percentUsed;
@@ -299,7 +330,7 @@ export class Renderer {
     }
 
     return {
-      text: ` ${icon} ${text} `,
+      text: `${icon} ${text}`,
       colors: this.theme.weekly,
     };
   }
@@ -330,17 +361,14 @@ export class Renderer {
       const colors = this.getColorsForPercent(maxPercent, this.theme.weekly);
 
       return {
-        text: ` ${text} `,
+        text: `${text}`,
         colors,
       };
     }
 
     // For Opus, Haiku, or when no model-specific data: just show overall
     if (info.percentUsed === null) {
-      return {
-        text: ` ${overallIcon} -- `,
-        colors: this.theme.weekly,
-      };
+      return null;
     }
 
     const trend = this.getTrendSymbol(ctx.trendInfo?.sevenDayTrend ?? null);
@@ -353,7 +381,7 @@ export class Renderer {
     const colors = this.getColorsForPercent(info.percentUsed, this.theme.weekly);
 
     return {
-      text: ` ${text} `,
+      text: `${text}`,
       colors,
     };
   }
@@ -380,17 +408,18 @@ export class Renderer {
     }
 
     const percent = ctx.envInfo.contextPercent;
-    const icon = this.usePowerline ? this.symbols.context : "CTX";
-    const colors = this.getColorsForPercent(percent, this.theme.context);
+    const colors = this.getContextColors(percent);
 
     return {
-      text: ` ${icon} ${percent}% `,
+      text: `(${percent}%)`,
       colors,
     };
   }
 
   private getSegment(name: SegmentName, ctx: RenderContext): Segment | null {
     switch (name) {
+      case "time":
+        return this.renderTime(ctx);
       case "directory":
         return this.renderDirectory(ctx);
       case "git":

@@ -34,10 +34,11 @@ export interface DisplayConfig {
   compactWidth?: number;  // Terminal width threshold for compact mode (default 80)
 }
 
-export type SegmentName = "directory" | "git" | "model" | "block" | "weekly" | "context";
+export type SegmentName = "time" | "directory" | "git" | "model" | "block" | "weekly" | "context";
 
 export interface LimitlineConfig {
   display?: DisplayConfig;
+  time?: SimpleSegmentConfig;       // Show current time
   directory?: SimpleSegmentConfig;  // Show repo/directory name
   git?: SimpleSegmentConfig;        // Show git branch
   model?: SimpleSegmentConfig;      // Show Claude model
@@ -57,6 +58,9 @@ export const DEFAULT_CONFIG: LimitlineConfig = {
     compactMode: "auto",
     compactWidth: 80,
   },
+  time: {
+    enabled: true,
+  },
   directory: {
     enabled: true,
   },
@@ -64,16 +68,16 @@ export const DEFAULT_CONFIG: LimitlineConfig = {
     enabled: true,
   },
   model: {
-    enabled: true,
+    enabled: false,
   },
   block: {
     enabled: true,
-    displayStyle: "text",
+    displayStyle: "bar",
     barWidth: 10,
     showTimeRemaining: true,
   },
   weekly: {
-    enabled: true,
+    enabled: false,
     displayStyle: "text",
     barWidth: 10,
     showWeekProgress: true,
@@ -87,6 +91,6 @@ export const DEFAULT_CONFIG: LimitlineConfig = {
     warningThreshold: 80,
   },
   theme: "dark",
-  segmentOrder: ["directory", "git", "model", "block", "weekly"],
-  showTrend: true,
+  segmentOrder: ["time", "directory", "git", "context", "block"],
+  showTrend: false,
 };
