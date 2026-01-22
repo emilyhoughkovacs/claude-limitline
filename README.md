@@ -246,9 +246,23 @@ echo '{"model":{"id":"claude-opus-4-5-20251101"}}' | claude-limitline
 
 ### "No data" or empty output
 
-1. **Check OAuth token**: Make sure you're logged into Claude Code (`claude --login`)
-2. **Check credentials file**: Verify `~/.claude/.credentials.json` exists
+1. **Check OAuth token**: Make sure you're logged into Claude Code (`claude setup-token`)
+2. **Check credentials file**: Verify `~/.claude/.credentials.json` exists (Windows/Linux)
 3. **Enable debug mode**: Run with `CLAUDE_LIMITLINE_DEBUG=true`
+
+### OAuth "permission_error" or "user:profile scope" error
+
+If you see errors like "OAuth token does not meet scope requirement user:profile":
+
+**Cause**: An environment variable `CLAUDE_CODE_OAUTH_TOKEN` in your shell configuration (`.zshrc`, `.bash_profile`, etc.) is overriding Claude Code's native authentication. That token only has `user:inference` scope, but the Usage API requires `user:profile` scope.
+
+**Solution**:
+1. Remove `CLAUDE_CODE_OAUTH_TOKEN` from your shell configuration files
+2. Delete any manually-stored tokens from Keychain: `security delete-generic-password -s "Claude Code-credentials"`
+3. Restart your terminal
+4. Let Claude Code use its native OAuth (which includes the correct scopes automatically)
+
+**Important**: Do NOT set `CLAUDE_CODE_OAUTH_TOKEN` as an environment variable. Claude Code's native OAuth flow includes all necessary scopes.
 
 ### Git branch not showing
 

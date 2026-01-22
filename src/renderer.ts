@@ -231,7 +231,7 @@ export class Renderer {
       return null;
     }
 
-    const dirtyIndicator = ctx.envInfo.gitDirty ? " ●" : "";
+    const dirtyIndicator = ctx.envInfo.gitDirty ? "●" : "";
     const icon = this.usePowerline ? this.symbols.branch : "";
     const prefix = icon ? `${icon} ` : "";
 
@@ -241,7 +241,7 @@ export class Renderer {
     }
 
     return {
-      text: `${prefix}${branch}${dirtyIndicator}`,
+      text: `${prefix}(${branch}${dirtyIndicator})`,
       colors: this.theme.git,
     };
   }
@@ -452,40 +452,27 @@ export class Renderer {
       compact,
     };
 
-    // Build left segments (existing behavior)
-    const leftSegments: Segment[] = [];
+    // Build segments in the order specified by config
+    const segments: Segment[] = [];
     const order = this.config.segmentOrder ?? ["directory", "git", "model", "block", "weekly"];
 
     for (const name of order) {
-      // Skip context - it goes on the right side
-      if (name === "context") continue;
       const segment = this.getSegment(name, ctx);
       if (segment) {
-        leftSegments.push(segment);
+        segments.push(segment);
       }
     }
 
-    // Build right segments (context with left arrows)
-    const rightSegments: Segment[] = [];
-    const contextSegment = this.renderContext(ctx);
-    if (contextSegment) {
-      rightSegments.push(contextSegment);
-    }
-
-    // Render both sides
+    // Render segments
     let output = "";
 
     if (this.usePowerline) {
-      if (leftSegments.length > 0) {
-        output += this.renderPowerline(leftSegments);
-      }
-      if (rightSegments.length > 0) {
-        output += this.renderRightPowerline(rightSegments);
+      if (segments.length > 0) {
+        output += this.renderPowerline(segments);
       }
     } else {
-      const allSegments = [...leftSegments, ...rightSegments];
-      if (allSegments.length > 0) {
-        output = this.renderFallback(allSegments);
+      if (segments.length > 0) {
+        output = this.renderFallback(segments);
       }
     }
 

@@ -82,19 +82,19 @@ export const darkTheme: ColorTheme = {
   directory: { bg: "transparent", fg: "226" },  // Yellow (ANSI 226)
   git: { bg: "transparent", fg: "50" },       // Cyan/teal (ANSI 50)
   model: { bg: "transparent", fg: "#ffffff" },
-  block: { bg: "transparent", fg: "33" },
-  blockLow: { bg: "transparent", fg: "33" },      // Blue (ANSI 33)
-  blockMedium: { bg: "transparent", fg: "46" },   // Green (ANSI 46)
-  blockHigh: { bg: "transparent", fg: "226" },    // Yellow (ANSI 226)
+  block: { bg: "transparent", fg: "117" },
+  blockLow: { bg: "transparent", fg: "117" },      // Sky blue (ANSI 117) - muted
+  blockMedium: { bg: "transparent", fg: "150" },   // Light green (ANSI 150) - muted
+  blockHigh: { bg: "transparent", fg: "221" },     // Gold (ANSI 221) - softer yellow
   weekly: { bg: "transparent", fg: "#98fb98" },
   opus: { bg: "transparent", fg: "#c792ea" },
   sonnet: { bg: "transparent", fg: "#89ddff" },
-  context: { bg: "transparent", fg: "33" },
-  contextLow: { bg: "transparent", fg: "33" },      // Blue (ANSI 33)
-  contextMedium: { bg: "transparent", fg: "46" },   // Green (ANSI 46)
-  contextHigh: { bg: "transparent", fg: "226" },    // Yellow (ANSI 226)
-  warning: { bg: "transparent", fg: "226" },
-  critical: { bg: "transparent", fg: "196" },     // Red (ANSI 196)
+  context: { bg: "transparent", fg: "117" },
+  contextLow: { bg: "transparent", fg: "117" },      // Sky blue (ANSI 117) - muted
+  contextMedium: { bg: "transparent", fg: "150" },   // Light green (ANSI 150) - muted
+  contextHigh: { bg: "transparent", fg: "221" },     // Gold (ANSI 221) - softer yellow
+  warning: { bg: "transparent", fg: "221" },
+  critical: { bg: "transparent", fg: "167" },     // Dusty rose/coral (ANSI 167) - much softer red
 };
 
 // Light theme

@@ -25,8 +25,8 @@ export const TEXT_SYMBOLS = {
   opus_cost: "Op",
   sonnet_cost: "So",
   bottleneck: "*",
-  progress_full: "#",
-  progress_empty: "-",
+  progress_full: "█",
+  progress_empty: "░",
 };
 
 // ANSI color codes
